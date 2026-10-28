@@ -7,9 +7,9 @@ from PySide6.QtWidgets import (
 from GUI.Components.Sidebar import Sidebar
 from PySide6.QtCore import Qt
 
-# Import the search bar component
+# Import components
 from GUI.Components.SearchBar import SearchBar
-
+from GUI.Components.panel import Panel
 
 
 class JobScoutWindow(QMainWindow):
@@ -20,9 +20,10 @@ class JobScoutWindow(QMainWindow):
 
         self.setWindowTitle("JobScout")
         self.resize(900, 600)
-        self.setMinimumSize(400, 300)
 
-        
+        # Set a safe minimum size limit so the window can't shrink and cause overlaps
+        self.setMinimumSize(750, 500)
+
         # Central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -37,10 +38,10 @@ class JobScoutWindow(QMainWindow):
         main_layout.addWidget(self.sidebar)
 
         # Main content area
-        content_widget = QWidget()
-        content_widget.setStyleSheet("background-color: #1f1f1f;")
+        self.content_widget = QWidget()
+        self.content_widget.setStyleSheet("background-color: #1f1f1f;")
 
-        self.layout = QVBoxLayout(content_widget)
+        self.layout = QVBoxLayout(self.content_widget)
         self.layout.setContentsMargins(20, 40, 20, 20)
         self.layout.setSpacing(20)
 
@@ -70,18 +71,49 @@ class JobScoutWindow(QMainWindow):
         search_row.addStretch()
         search_row.addWidget(self.search_bar)
         search_row.addStretch()
-
         self.layout.addLayout(search_row)
 
         # Keep the search bar area vertically centered
         self.layout.addStretch()
 
         # Let the content fill the remaining width
-        main_layout.addWidget(content_widget, 1)
-
+        main_layout.addWidget(self.content_widget, 1)
 
         # Connect search signal to handler
         self.search_bar.search_submitted.connect(self.on_search)
+
+        # Initialize the panel
+        self.panel = Panel(self.content_widget)
+
+        # Show it automatically on startup
+        self.toggle_panel()
+
+
+    def update_panel_geometry(self):
+        """Dynamically resize and center the panel based on the content window size."""
+        if hasattr(self, 'panel') and self.panel.isVisible():
+            target_width = max(350, min(int(self.content_widget.width() * 0.55), 700))
+            target_height = max(220, min(int(self.content_widget.height() * 0.55), 500))
+
+            self.panel.resize(target_width, target_height)
+
+            # Center it inside content_widget
+            x = (self.content_widget.width() - self.panel.width()) // 2
+            y = (self.content_widget.height() - self.panel.height()) // 2
+            self.panel.move(x, y)
+
+    def toggle_panel(self):
+        """
+        Connect this function to your future button later like this:
+        self.your_button.clicked.connect(self.toggle_panel)
+        """
+        self.update_panel_geometry()
+        self.panel.show()
+        self.panel.raise_()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.update_panel_geometry()
 
     def on_search(self, query):
         """Triggered when search is submitted or Enter is pressed"""
