@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 )
 
 from GUI.Components.Sidebar import Sidebar
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 # Import components
 from GUI.Components.SearchBar import SearchBar
@@ -85,8 +85,8 @@ class JobScoutWindow(QMainWindow):
         # Initialize the panel
         self.panel = Panel(self.content_widget)
 
-        # Show it automatically on startup
-        self.toggle_panel()
+        # Show it automatically on startup using QTimer for precise centering
+        QTimer.singleShot(0, self.toggle_panel)
 
 
     def update_panel_geometry(self):
