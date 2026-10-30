@@ -18,7 +18,7 @@ class Panel(QFrame):
             }
         """)
 
-        self.setMinimumSize(350, 280)
+        self.setMinimumSize(450,350)
 
         # Panel inner layout
         self.main_layout = QVBoxLayout(self)

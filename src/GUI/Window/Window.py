@@ -100,14 +100,14 @@ class JobScoutWindow(QMainWindow):
     def update_panel_geometry(self):
         """Dynamically resize and center the panel based on the content window size."""
         if hasattr(self, 'panel') and self.panel.isVisible():
-            target_width = max(350, min(int(self.content_widget.width() * 0.70), 800))
-            target_height = max(280, min(int(self.content_widget.height() * 0.65), 550))
+            target_width = max(450, min(int(self.content_widget.width() * 0.85), 1000))
+            target_height = max(350, min(int(self.content_widget.height() * 0.80), 700))
 
             self.panel.resize(target_width, target_height)
 
             # Center it horizontally, with a slight downward offset so it doesn't overlap the search bar
             x = (self.content_widget.width() - self.panel.width()) // 2
-            y = ((self.content_widget.height() - self.panel.height()) // 2) + 30
+            y = ((self.content_widget.height() - self.panel.height()) // 2) + 60
 
             self.panel.move(x, y)
 
