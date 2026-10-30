@@ -1,20 +1,19 @@
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PySide6.QtCore import Qt, Signal
-from GUI.Components.Drop_down import CustomDropdown
 
 
 class Panel(QFrame):
-    """Responsive white translucent panel containing search tools and cards."""
+    """Responsive dark translucent panel containing search tools and cards."""
     closed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # Bootstrap-inspired clean surface styling
+        # Sleek dark Bootstrap-inspired surface styling
         self.setStyleSheet("""
             Panel {
-                background-color: rgba(255, 255, 255, 240);
-                border: 1px solid rgba(226, 232, 240, 255);
+                background-color: #2a2a2a;
+                border: 1px solid #3f3f46;
                 border-radius: 12px;
             }
         """)
@@ -26,15 +25,9 @@ class Panel(QFrame):
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
 
-        # Header layout (Top row: Dropdown filter + Close Button)
-        header_layout = QHBoxLayout()
-        header_layout.setSpacing(10)
-
-        # Initialize the modular CustomDropdown
-        initial_locations = ["JAVA","PYTHON","C++"]
-        self.filter_dropdown = CustomDropdown(placeholder="Option",items=initial_locations)
-
-        header_layout.addWidget(self.filter_dropdown, 1)
+        # Header layout (Top row: Dropdowns + Close Button)
+        self.header_layout = QHBoxLayout()
+        self.header_layout.setSpacing(10)
 
         # Close button (X)
         self.close_btn = QPushButton("✕")
@@ -43,14 +36,14 @@ class Panel(QFrame):
         self.close_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
-                color: #64748b;
+                color: #a1a1aa;
                 font-size: 14px;
                 font-weight: bold;
                 border: none;
                 border-radius: 6px;
             }
             QPushButton:hover {
-                background-color: rgba(239, 68, 68, 0.1);
+                background-color: rgba(239, 68, 68, 0.15);
                 color: #ef4444;
             }
         """)
@@ -58,8 +51,9 @@ class Panel(QFrame):
         self.close_btn.clicked.connect(self.hide)
         self.close_btn.clicked.connect(self.closed.emit)
 
-        header_layout.addWidget(self.close_btn)
-        self.main_layout.addLayout(header_layout)
+        self.header_layout.addStretch()
+        self.header_layout.addWidget(self.close_btn)
+        self.main_layout.addLayout(self.header_layout)
 
         # Container for content / dynamic cards
         self.content_container_layout = QVBoxLayout()
@@ -68,13 +62,18 @@ class Panel(QFrame):
 
         self.main_layout.addStretch()
 
+    def add_header_widget(self, widget):
+        """Allows adding any widget (like a Dropdown) from the main window to the panel header."""
+        # Insert the widget right before the close button stretch/item
+        self.header_layout.insertWidget(self.header_layout.count() - 2, widget, 1)
+
     def add_job_card(self, title, company, location, badge_text="New"):
         """Adds a Bootstrap-styled job card dynamically inside the panel."""
         card = QFrame()
         card.setStyleSheet("""
             QFrame {
-                background-color: #ffffff;
-                border: 1px solid #e2e8f0;
+                background-color: #313135;
+                border: 1px solid #3f3f46;
                 border-radius: 8px;
             }
         """)
@@ -85,12 +84,12 @@ class Panel(QFrame):
         top_row = QHBoxLayout()
         title_lbl = QLabel(title)
         title_lbl.setStyleSheet(
-            "font-weight: bold; color: #0f172a; font-size: 14px; border: none; background: transparent;")
+            "font-weight: bold; color: #f4f4f5; font-size: 14px; border: none; background: transparent;")
 
         badge = QLabel(badge_text)
         badge.setStyleSheet("""
-            background-color: #e0f2fe;
-            color: #0369a1;
+            background-color: #1e3a8a;
+            color: #93c5fd;
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 10px;
@@ -104,7 +103,7 @@ class Panel(QFrame):
         card_layout.addLayout(top_row)
 
         sub_lbl = QLabel(f"{company} • {location}")
-        sub_lbl.setStyleSheet("color: #64748b; font-size: 12px; border: none; background: transparent;")
+        sub_lbl.setStyleSheet("color: #a1a1aa; font-size: 12px; border: none; background: transparent;")
         card_layout.addWidget(sub_lbl)
 
         self.content_container_layout.addWidget(card)

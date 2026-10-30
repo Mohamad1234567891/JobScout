@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget,
-    QVBoxLayout, QHBoxLayout, QFrame
+    QVBoxLayout, QHBoxLayout
 )
 
 from GUI.Components.Sidebar import Sidebar
@@ -10,6 +10,7 @@ from PySide6.QtCore import Qt, QTimer
 # Import components
 from GUI.Components.SearchBar import SearchBar
 from GUI.Components.panel import Panel
+from GUI.Components.Drop_down import CustomDropdown
 
 
 class JobScoutWindow(QMainWindow):
@@ -33,7 +34,7 @@ class JobScoutWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Left sidebar
+        # Left sidebar and connecting its plus_button to toggle the panel
         self.sidebar = Sidebar()
         self.sidebar.plus_button.clicked.connect(self.toggle_panel)
         main_layout.addWidget(self.sidebar)
@@ -86,31 +87,39 @@ class JobScoutWindow(QMainWindow):
         # Initialize the panel
         self.panel = Panel(self.content_widget)
 
+        # Creat the Drop down and add it to panel
+        self.education_dropdown = CustomDropdown(
+            placeholder="Education Level",
+            items=["Bachelor", "Master", "PhD",]
+        )
+        self.panel.add_header_widget(self.education_dropdown)
+
         # Show it automatically on startup using QTimer for precise centering
         QTimer.singleShot(0, self.toggle_panel)
-
 
     def update_panel_geometry(self):
         """Dynamically resize and center the panel based on the content window size."""
         if hasattr(self, 'panel') and self.panel.isVisible():
-            target_width = max(350, min(int(self.content_widget.width() * 0.55), 700))
-            target_height = max(220, min(int(self.content_widget.height() * 0.55), 500))
+            target_width = max(350, min(int(self.content_widget.width() * 0.70), 800))
+            target_height = max(280, min(int(self.content_widget.height() * 0.65), 550))
 
             self.panel.resize(target_width, target_height)
 
-            # Center it inside content_widget
+            # Center it horizontally, with a slight downward offset so it doesn't overlap the search bar
             x = (self.content_widget.width() - self.panel.width()) // 2
-            y = (self.content_widget.height() - self.panel.height()) // 2
+            y = ((self.content_widget.height() - self.panel.height()) // 2) + 30
+
             self.panel.move(x, y)
 
     def toggle_panel(self):
-        """
-        Connect this function to your future button later like this:
-        self.your_button.clicked.connect(self.toggle_panel)
-        """
-        self.update_panel_geometry()
-        self.panel.show()
-        self.panel.raise_()
+        """Toggles the panel visibility and ensures precise centering immediately."""
+        if self.panel.isVisible():
+            self.panel.hide()
+        else:
+            self.panel.show()
+            self.panel.raise_()
+            # استخدام QTimer لضمان حساب أبعاد الـ Layout وتوسيط البانل بدقة تامة من أول نقرة
+            QTimer.singleShot(0, self.update_panel_geometry)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
