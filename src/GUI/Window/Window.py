@@ -35,6 +35,7 @@ class JobScoutWindow(QMainWindow):
 
         # Left sidebar
         self.sidebar = Sidebar()
+        self.sidebar.plus_button.clicked.connect(self.toggle_panel)
         main_layout.addWidget(self.sidebar)
 
         # Main content area

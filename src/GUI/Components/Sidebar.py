@@ -37,9 +37,6 @@ class Sidebar(QWidget):
 
         layout.addLayout(header_layout)
 
-        # Connect the button's click event to its handler method.
-        self.plus_button.clicked.connect(self.on_plus_clicked)
-
         # Add a horizontal divider to separate the header from future content.
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
@@ -82,7 +79,3 @@ class Sidebar(QWidget):
                 background-color: #3b5272;
             }
         """)
-
-    def on_plus_clicked(self):
-        # Placeholder for the functionality that will be added later.
-        pass
