@@ -1,13 +1,20 @@
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PySide6.QtCore import Qt, Signal
 
+from GUI.Components.Button import Button  # reused styled button
+
 
 class Panel(QFrame):
     """Responsive dark translucent panel containing search tools and cards."""
     closed = Signal()
+    start_search_clicked = Signal()  # emitted when the Start Search button is clicked
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        # Search bar that is currently docked inside the panel (None when it lives in the window)
+        self._docked_bar = None
+        self._saved_bar_state = None
 
         # Sleek dark Bootstrap-inspired surface styling
         self.setStyleSheet("""
@@ -61,6 +68,84 @@ class Panel(QFrame):
         self.main_layout.addLayout(self.content_container_layout)
 
         self.main_layout.addStretch()
+
+        # Footer row with "Start Search" button at the bottom right
+        self.footer_layout = QHBoxLayout()
+        self.footer_layout.addStretch()
+
+        # Reuse the Button component (same look as the rest of the app)
+        self.start_search_btn = Button("Start Search", "")
+        # This button doesn't open a URL, so remove Button's default click action
+        self.start_search_btn.clicked.disconnect(self.start_search_btn.OnClicked)
+        self.start_search_btn.setFixedSize(130, 34)  # a bit wider than the default 110px for the longer text
+        self.start_search_btn.clicked.connect(self.start_search_clicked.emit)
+
+        self.footer_layout.addWidget(self.start_search_btn)
+        self.main_layout.addLayout(self.footer_layout)
+
+    def dock_search_bar(self, bar):
+        """Moves the window's existing SearchBar into the top of the panel and restyles it for the dark panel."""
+        if self._docked_bar is bar:
+            return
+
+        # Remember the original look so it can be restored later
+        self._saved_bar_state = {
+            "bar_style": bar.styleSheet(),
+            "input_style": bar.input_field.styleSheet(),
+            "max_width": bar.maximumWidth(),
+            "height": bar.minimumHeight(),
+            "margins": bar.layout().contentsMargins(),
+            "btn_visible": True,
+        }
+
+        # Hide the Search button (pressing Enter still submits)
+        bar.search_btn.hide()
+
+        # Dark look that matches the panel and dropdown
+        bar.setFixedHeight(44)
+        bar.setMaximumWidth(16777215)  # fill the panel width like the dropdown
+        bar.layout().setContentsMargins(14, 4, 14, 4)
+        bar.setStyleSheet("""
+            SearchBar {
+                background-color: #313135;
+                border: 1px solid #3f3f46;
+                border-radius: 8px;
+            }
+        """)
+        bar.input_field.setStyleSheet("""
+            QLineEdit {
+                background: transparent;
+                border: none;
+                font-size: 14px;
+                color: #f4f4f5;
+                selection-background-color: #1e3a8a;
+            }
+        """)
+
+        # Put it above the dropdown row
+        self.main_layout.insertWidget(0, bar)
+        bar.show()
+        self._docked_bar = bar
+
+    def undock_search_bar(self):
+        """Takes the SearchBar out of the panel, restores its original look, and returns it (or None)."""
+        bar = self._docked_bar
+        if bar is None:
+            return None
+
+        state = self._saved_bar_state
+        self.main_layout.removeWidget(bar)
+
+        bar.setStyleSheet(state["bar_style"])
+        bar.input_field.setStyleSheet(state["input_style"])
+        bar.setFixedHeight(state["height"])
+        bar.setMaximumWidth(state["max_width"])
+        bar.layout().setContentsMargins(state["margins"])
+        bar.search_btn.setVisible(state["btn_visible"])
+
+        self._docked_bar = None
+        self._saved_bar_state = None
+        return bar
 
     def add_header_widget(self, widget):
         """Allows adding any widget (like a Dropdown) from the main window to the panel header."""
