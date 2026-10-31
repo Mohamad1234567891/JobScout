@@ -14,7 +14,8 @@ Terms — see the LICENSE file.
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QScrollArea, QGridLayout, QHBoxLayout, QFrame
+    QWidget, QScrollArea, QGridLayout, QHBoxLayout,
+    QFrame, QVBoxLayout
 )
 from PySide6.QtCore import Qt
 
@@ -105,3 +106,31 @@ class ScrollContainer(QScrollArea):
         self.items.clear()
 
         self.verticalScrollBar().setValue(0)
+
+    
+class SidebarScrollContainer(QScrollArea):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.setFrameShape(QFrame.Shape.NoFrame)
+
+        # Container for action items
+        self.container = QWidget()
+
+        # Vertical layout
+        self.layout = QVBoxLayout(self.container)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(6)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.setWidget(self.container)
+
+    def add_item(self, item):
+        self.layout.addWidget(item)
