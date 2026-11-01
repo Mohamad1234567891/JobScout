@@ -14,7 +14,7 @@ from GUI.Components.Drop_down import CustomDropdown
 
 
 class JobScoutWindow(QMainWindow):
-    """Main JobScout window - the search bar lives in the window until the panel opens, then moves into the panel."""
+    """Main JobScout window - the search bar lives only inside the panel."""
 
     def __init__(self):
         super().__init__()
@@ -52,11 +52,17 @@ class JobScoutWindow(QMainWindow):
         self.logo_space.setFixedHeight(40)
         self.layout.addWidget(self.logo_space)
 
-        # Search row (kept as an attribute so the search bar can be put back here later)
-        self.search_row = QHBoxLayout()
-        self.search_row.setContentsMargins(0, 0, 0, 0)
-        self.search_row.setSpacing(10)
+        # Keep the content area stretched
+        self.layout.addStretch()
 
+        # Let the content fill the remaining width
+        main_layout.addWidget(self.content_widget, 1)
+
+        # Initialize the panel
+        self.panel = Panel(self.content_widget)
+        self.panel.start_search_clicked.connect(self.on_start_search)
+
+        # The search bar is created here but goes straight into the panel (never into the window layout)
         suggestions = [
             "Python Developer",
             "Backend Engineer",
@@ -65,31 +71,11 @@ class JobScoutWindow(QMainWindow):
         ]
 
         self.search_bar = SearchBar(suggestions=suggestions)
-        self.search_bar.setMaximumWidth(700)
         self.search_bar.input_field.setPlaceholderText(
             "Search for a job (e.g. Python Developer)..."
         )
-
-        self.search_row.addStretch()
-        self.search_row.addWidget(self.search_bar)
-        self.search_row.addStretch()
-        self.layout.addLayout(self.search_row)
-
-        # Keep the search bar area vertically centered
-        self.layout.addStretch()
-
-        # Let the content fill the remaining width
-        main_layout.addWidget(self.content_widget, 1)
-
-        # Connect search signal to handler (still works after the bar moves into the panel)
         self.search_bar.search_submitted.connect(self.on_search)
-
-        # Initialize the panel
-        self.panel = Panel(self.content_widget)
-
-        # When the panel is closed with its X button, put the search bar back in the window
-        self.panel.closed.connect(self.restore_search_bar)
-        self.panel.start_search_clicked.connect(self.on_start_search)
+        self.panel.dock_search_bar(self.search_bar)
 
         # Creat the Drop down and add it to panel
         self.education_dropdown = CustomDropdown(
@@ -101,18 +87,6 @@ class JobScoutWindow(QMainWindow):
         # Show it automatically on startup using QTimer for precise centering
         QTimer.singleShot(0, self.toggle_panel)
 
-    def move_search_bar_to_panel(self):
-        """Takes the search bar out of the window layout and docks it at the top of the panel."""
-        self.search_row.removeWidget(self.search_bar)
-        self.panel.dock_search_bar(self.search_bar)
-
-    def restore_search_bar(self):
-        """Gives the search bar back to the window (between the two stretches of the search row)."""
-        bar = self.panel.undock_search_bar()
-        if bar is not None:
-            self.search_row.insertWidget(1, bar)
-            bar.show()
-
     def update_panel_geometry(self):
         """Dynamically resize and center the panel based on the content window size."""
         if hasattr(self, 'panel') and self.panel.isVisible():
@@ -121,9 +95,9 @@ class JobScoutWindow(QMainWindow):
 
             self.panel.resize(target_width, target_height)
 
-            # Center it horizontally, with a slight downward offset so it doesn't overlap the search bar
+            # Center the panel in the content area
             x = (self.content_widget.width() - self.panel.width()) // 2
-            y = ((self.content_widget.height() - self.panel.height()) // 2) + 60
+            y = (self.content_widget.height() - self.panel.height()) // 2
 
             self.panel.move(x, y)
 
@@ -131,9 +105,7 @@ class JobScoutWindow(QMainWindow):
         """Toggles the panel visibility and ensures precise centering immediately."""
         if self.panel.isVisible():
             self.panel.hide()
-            self.restore_search_bar()
         else:
-            self.move_search_bar_to_panel()
             self.panel.show()
             self.panel.raise_()
 
