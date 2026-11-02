@@ -32,7 +32,7 @@ class Panel(QFrame):
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
 
-        # Header layout (Top row: Dropdowns + Close Button)
+        # Header layout (row with the dropdowns)
         self.header_layout = QHBoxLayout()
         self.header_layout.setSpacing(10)
 
@@ -58,8 +58,13 @@ class Panel(QFrame):
         self.close_btn.clicked.connect(self.hide)
         self.close_btn.clicked.connect(self.closed.emit)
 
-        self.header_layout.addStretch()
-        self.header_layout.addWidget(self.close_btn)
+        # Top row: close button at the top right, above the search bar
+        self.top_row_layout = QHBoxLayout()
+        self.top_row_layout.addStretch()
+        self.top_row_layout.addWidget(self.close_btn)
+        self.main_layout.addLayout(self.top_row_layout)
+
+        # (The search bar gets docked below the top row, then this header row with the dropdowns)
         self.main_layout.addLayout(self.header_layout)
 
         # Container for content / dynamic cards
@@ -122,8 +127,8 @@ class Panel(QFrame):
             }
         """)
 
-        # Put it above the dropdown row
-        self.main_layout.insertWidget(0, bar)
+        # Put it below the close button row and above the dropdown row
+        self.main_layout.insertWidget(1, bar)
         bar.show()
         self._docked_bar = bar
 
@@ -149,8 +154,8 @@ class Panel(QFrame):
 
     def add_header_widget(self, widget):
         """Allows adding any widget (like a Dropdown) from the main window to the panel header."""
-        # Insert the widget right before the close button stretch/item
-        self.header_layout.insertWidget(self.header_layout.count() - 2, widget, 1)
+        # Add the widget to the header row (several dropdowns share the width equally)
+        self.header_layout.addWidget(widget, 1)
 
     def add_job_card(self, title, company, location, badge_text="New"):
         """Adds a Bootstrap-styled job card dynamically inside the panel."""

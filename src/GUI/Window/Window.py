@@ -10,7 +10,7 @@ from PySide6.QtCore import Qt, QTimer
 # Import components
 from GUI.Components.SearchBar import SearchBar
 from GUI.Components.panel import Panel
-from GUI.Components.Drop_down import CustomDropdown
+from GUI.Components.Drop_down import CustomDropdown, SelectionDropdown
 
 
 class JobScoutWindow(QMainWindow):
@@ -84,6 +84,14 @@ class JobScoutWindow(QMainWindow):
         )
         self.panel.add_header_widget(self.education_dropdown)
 
+        # Multi-select drop down (can choose more than one item) and add it to panel
+        self.skills_dropdown = SelectionDropdown(
+            placeholder="Skills",
+            items=["Python", "Java", "C++", "JavaScript", "SQL"]
+        )
+        self.skills_dropdown.selection_changed.connect(self.on_skills_changed)
+        self.panel.add_header_widget(self.skills_dropdown)
+
         # Show it automatically on startup using QTimer for precise centering
         QTimer.singleShot(0, self.toggle_panel)
 
@@ -121,7 +129,22 @@ class JobScoutWindow(QMainWindow):
 
     def on_start_search(self):
         """Triggered when the Start Search button in the panel is clicked"""
-        print("Start search clicked")
+        # Collect everything the user chose in the panel (ready for the real search later)
+        filters = {
+            "query": self.search_bar.text(),
+            "education": self.education_dropdown.currentText(),
+            "skills": self.skills_dropdown.selected_items(),
+        }
+        print(f"Start search clicked: {filters}")
+
+        # Close the panel
+        self.panel.hide()
+
+        # TODO: add the next steps here (run the search, show the results, ...)
+
+    def on_skills_changed(self, selected):
+        """Triggered when the chosen items in the Skills drop down change"""
+        print(f"Skills selected: {selected}")
 
 
 if __name__ == "__main__":
