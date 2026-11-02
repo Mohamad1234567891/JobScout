@@ -2,3 +2,4 @@ PySide6
 Playwright
 curl_cffi
 lxml
+desktop-notifier
