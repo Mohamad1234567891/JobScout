@@ -1,8 +1,24 @@
-"""Asynchronous slot manager that limits how many tasks run at the same time.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's AsyncSlotsManager with standard Python naming. When
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Asynchronous slot manager that limits how many tasks run at the same time.
+
+Priority-based asynchronous slot manager. When
 all slots are occupied, new tasks wait in a priority queue (smaller priority
 number = higher priority; equal priorities run in arrival order).
+
 """
 
 import heapq

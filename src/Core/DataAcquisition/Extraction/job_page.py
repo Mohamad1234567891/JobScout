@@ -1,13 +1,29 @@
-"""Job page extraction.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
+
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Job page extraction.
 
 Turns a LinkedIn job posting page into a dictionary with every important
 field: title, company, location, posted date, applicant count, employment
 type, seniority, industries, the full description, and the requirements the
 employer asks for (experience, education, certificates, skills).
 
-Follows the layered strategy of ShopWise's product-page extractor: structured
+Follows a layered strategy: structured
 data first (JSON-LD JobPosting / meta tags), visible DOM second, regex
 fallbacks last.
+
 """
 
 import re
@@ -296,5 +312,6 @@ def extract_job_page(html, page_url, captured=()):
     data["education_requirements"] = req.extract_education_requirements(requirement_text)
     data["certificates"] = req.extract_certificates(requirement_text)
     data["skills"] = req.extract_skills(requirement_text)
+    data["languages"] = req.extract_languages(requirement_text)
 
     return data

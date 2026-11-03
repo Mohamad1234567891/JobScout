@@ -1,9 +1,25 @@
-"""JSON extraction helpers.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's JsonOperations with standard Python naming. Safely
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+JSON extraction helpers.
+
+Safely
 loads JSON wrapped in comments/CDATA or slightly broken (trailing commas,
 several objects in one script), walks nested structures with a bounded DFS,
 and pulls Schema.org JSON-LD blocks and embedded frontend state out of pages.
+
 """
 
 import json

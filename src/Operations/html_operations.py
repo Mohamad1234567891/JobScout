@@ -1,10 +1,26 @@
-"""HTML parsing and semantics for the job pipeline.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's HTMLOperations with standard Python naming and with
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+HTML parsing and semantics for the job pipeline.
+
+Standard Python naming and with
 the product-card (price-based) discovery removed - job cards have their own
 logic in extraction/job_listing.py. Kept here: lxml parsing, encoding
 detection, microdata/Schema.org extraction, visibility checks and internal
 link collection.
+
 """
 
 import re

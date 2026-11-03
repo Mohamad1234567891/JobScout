@@ -1,9 +1,25 @@
-"""In-page JavaScript snippets executed by the headless browser.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's JavaScripts module: progressive scrolling to trigger
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+In-page JavaScript snippets executed by the headless browser.
+
+Progressive scrolling to trigger
 lazy-loaded content and DOM element counting are carried over unchanged; the
 review-specific clickers were replaced by a "see more jobs" clicker used on
 LinkedIn search pages.
+
 """
 
 # Scroll down step by step (lazy-loaded jobs appear) and end at the bottom.

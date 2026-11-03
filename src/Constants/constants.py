@@ -1,12 +1,27 @@
-"""Central configuration and semantic word sets used by the job scraping pipeline.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
+
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Central configuration and semantic word sets used by the job scraping pipeline.
 
 Keeps the region/domain knowledge and the multilingual requirement keyword
-sets in one auditable place, mirroring the role ShopWise's Constants package
-played there (priorities, second-level domains, semantic words).
+sets in one auditable place, mirroring the role a Constants package plays (priorities, second-level domains, semantic words).
+
 """
 
 # Task priorities inside the slot managers: work already started (job pages)
-# goes before opening new listing pages, exactly like ShopWise's NOW/NEXT.
+# goes before opening new listing pages (NOW/NEXT priorities).
 NOW, NEXT = 0, 1
 
 # Second-level domain parts used to recognize two-part country domains

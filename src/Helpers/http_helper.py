@@ -1,9 +1,25 @@
-"""Anti-bot detection.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's HTTPHelper module. looks_blocked(...) recognizes
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Anti-bot detection.
+
+looks_blocked(...) recognizes
 bot-blocked responses by status code and by known challenge signatures
 (Cloudflare, Akamai, DataDome, PerimeterX...) so the Fetcher can fall back to
 the browser for that page.
+
 """
 
 from src.Constants import regex_constants as re_c

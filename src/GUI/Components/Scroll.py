@@ -1,16 +1,19 @@
 """
-This file is part of ShopWise, an open-source multi-region, multi-store
-price-comparison and product-search engine.
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Copyright (c) 2026 Muhammed Bekiroğlu and the ShopWise contributors.
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
 
-Original ShopWise repository: https://github.com/Mohamad1234567891/ShopWise
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
 
-Muhammed Bekiroğlu (ShopWise team leader and top contributor) YouTube channel:
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
     https://www.youtube.com/@ALShajaraComputerScienceInstit
 
 Licensed under the Mozilla Public License 2.0 with Additional Attribution
 Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Scrollable containers for cards (results grid) and sidebar items.
 """
 
 from PySide6.QtWidgets import (
@@ -21,7 +24,9 @@ from PySide6.QtCore import Qt
 
 
 class ScrollContainer(QScrollArea):
-    """Scrollable results area that arranges product cards in a responsive centered grid and cleans up cards (and their pending image downloads) when cleared."""
+    """Scrollable results area that arranges cards in a responsive centered
+    grid and cleans up its widgets when cleared."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -29,10 +34,10 @@ class ScrollContainer(QScrollArea):
         self.spacing = 20
         self.items = []
 
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setWidgetResizable(True)
-        self.setFrameShape(QFrame.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
         self.setStyleSheet("""
             QScrollArea {
@@ -45,7 +50,7 @@ class ScrollContainer(QScrollArea):
         self.outer_widget = QWidget()
         self.outer_widget.setStyleSheet("background: transparent;")
 
-        # Horizontal layout with flanking spacers to ensure cards stay centered
+        # Horizontal layout with flanking spacers to keep cards centered
         self.outer_layout = QHBoxLayout(self.outer_widget)
         self.outer_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -56,9 +61,9 @@ class ScrollContainer(QScrollArea):
         self.grid_layout = QGridLayout(self.cards_holder)
         self.grid_layout.setSpacing(self.spacing)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
-        self.grid_layout.setAlignment(Qt.AlignTop)
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Place stretch spacers on both sides to balance remaining whitespace
+        # Stretch spacers on both sides balance the remaining whitespace
         self.outer_layout.addStretch(1)
         self.outer_layout.addWidget(self.cards_holder)
         self.outer_layout.addStretch(1)
@@ -69,6 +74,10 @@ class ScrollContainer(QScrollArea):
         self.items.append(widget)
         self._rebuild_grid()
 
+    def rebuild(self):
+        """Re-lays-out the cards (call after re-sorting self.items)."""
+        self._rebuild_grid()
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._rebuild_grid()
@@ -77,7 +86,7 @@ class ScrollContainer(QScrollArea):
         if not self.items:
             return
 
-        # Calculate actual available width inside the scroll area
+        # Available width inside the scroll area
         viewport_w = self.viewport().width() - 30
         if viewport_w <= 0:
             return
@@ -85,46 +94,43 @@ class ScrollContainer(QScrollArea):
         slot_width = self.card_width + self.spacing
         columns = max(1, (viewport_w + self.spacing) // slot_width)
 
-        # Clear existing items from the layout
         while self.grid_layout.count() > 0:
             self.grid_layout.takeAt(0)
 
-        # Re-populate the cards across calculated rows and columns
         for index, widget in enumerate(self.items):
             row = index // columns
             col = index % columns
             self.grid_layout.addWidget(widget, row, col)
 
     def clear(self):
+        """Removes and destroys every card widget."""
         while self.grid_layout.count() > 0:
             self.grid_layout.takeAt(0)
 
         for widget in self.items:
-            widget.cancel_image()
+            # Cards may optionally clean up pending downloads before dying.
+            cancel = getattr(widget, "cancel_image", None)
+            if callable(cancel):
+                cancel()
             widget.hide()
             widget.deleteLater()
         self.items.clear()
 
         self.verticalScrollBar().setValue(0)
 
-    
+
 class SidebarScrollContainer(QScrollArea):
+    """Scrollable vertical list used by the sidebar for its action items."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.setWidgetResizable(True)
-        self.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
-        self.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded
-        )
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setFrameShape(QFrame.Shape.NoFrame)
 
-        # Container for action items
         self.container = QWidget()
-
-        # Vertical layout
         self.layout = QVBoxLayout(self.container)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(6)

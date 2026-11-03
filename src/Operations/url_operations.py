@@ -1,9 +1,25 @@
-"""URL cleaning and link intelligence.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's URLOperations with standard Python naming. Strips
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+URL cleaning and link intelligence.
+
+Strips
 tracking parameters, builds canonical comparable URLs, detects search-result
 URLs, extracts IDs, resolves the real site domain (including two-part country
 domains) and picks the best link from a set of anchors.
+
 """
 
 import re

@@ -1,8 +1,24 @@
-"""Vocabulary for the requirement understanding engine.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
+
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Vocabulary for the requirement understanding engine.
 
 Large curated word/phrase sets used to recognize skills, certificates,
 degrees, fields of study, languages and soft skills inside job description
 text. Everything is lowercase so callers can match against lowercased text.
+
 """
 
 # ---------------------------------------------------------------------------
@@ -352,3 +368,371 @@ PROFICIENCY_PREFIXES = (
     "strong", "solid", "excellent", "good", "great", "outstanding", "advanced", "deep",
     "proven", "exceptional", "sound", "superb", "working", "practical", "high", "broad",
 )
+
+
+# ---------------------------------------------------------------------------
+# Related-item maps used by the matcher: when the user owns a related skill or
+# certificate instead of the exact one, the match still gets partial credit.
+# ---------------------------------------------------------------------------
+RELATED_SKILLS = {
+    "pytorch": ["tensorflow", "keras", "jax"],
+    "tensorflow": ["pytorch", "keras", "jax"],
+    "keras": ["pytorch", "tensorflow"],
+    "react": ["vue", "angular", "svelte", "next.js"],
+    "vue": ["react", "angular", "svelte"],
+    "angular": ["react", "vue", "svelte"],
+    "postgresql": ["mysql", "sqlite", "sql server", "mariadb"],
+    "mysql": ["postgresql", "sqlite", "sql server"],
+    "mongodb": ["cassandra", "dynamodb", "redis"],
+    "elasticsearch": ["opensearch", "solr"],
+    "kafka": ["rabbitmq", "sqs", "sns"],
+    "spark": ["pyspark", "hadoop", "databricks"],
+    "databricks": ["spark", "pyspark", "snowflake", "bigquery"],
+    "snowflake": ["bigquery", "redshift", "databricks"],
+    "bigquery": ["snowflake", "redshift"],
+    "aws": ["azure", "gcp", "google cloud"],
+    "azure": ["aws", "gcp", "google cloud"],
+    "gcp": ["aws", "azure", "google cloud"],
+    "google cloud": ["aws", "azure", "gcp"],
+    "docker": ["kubernetes", "k8s"],
+    "kubernetes": ["docker", "k8s"],
+    "k8s": ["docker", "kubernetes"],
+    "terraform": ["pulumi", "cloudformation"],
+    "ansible": ["chef", "puppet"],
+    "jenkins": ["github actions", "gitlab ci", "circleci"],
+    "github actions": ["jenkins", "gitlab ci"],
+    "fastapi": ["flask", "django"],
+    "flask": ["fastapi", "django"],
+    "django": ["fastapi", "flask"],
+    "node.js": ["express", "javascript"],
+    "pandas": ["numpy", "scipy"],
+    "numpy": ["pandas", "scipy"],
+    "scikit-learn": ["xgboost", "lightgbm"],
+    "xgboost": ["scikit-learn", "lightgbm", "catboost"],
+    "lightgbm": ["scikit-learn", "xgboost"],
+    "machine learning": ["deep learning", "data science", "nlp", "computer vision"],
+    "deep learning": ["machine learning", "nlp", "computer vision"],
+    "data science": ["machine learning", "data analysis", "statistics"],
+    "data analysis": ["data science", "statistics", "business intelligence"],
+    "nlp": ["machine learning", "deep learning", "llm", "llms"],
+    "computer vision": ["machine learning", "deep learning"],
+    "llm": ["nlp", "generative ai", "transformers", "llms"],
+    "llms": ["llm", "nlp", "generative ai"],
+    "generative ai": ["llm", "llms", "deep learning"],
+    "transformers": ["llm", "deep learning"],
+    "mlops": ["devops", "model deployment", "kubernetes"],
+    "devops": ["mlops", "ci/cd", "docker"],
+    "ci/cd": ["devops", "jenkins", "github actions"],
+    "power bi": ["tableau", "looker"],
+    "tableau": ["power bi", "looker"],
+    "sql": ["postgresql", "mysql", "sql server", "sqlite"],
+    "javascript": ["typescript", "node.js"],
+    "typescript": ["javascript", "node.js"],
+    "java": ["c#", "kotlin", "scala"],
+    "c#": ["java", "kotlin"],
+    "go": ["golang", "rust"],
+    "golang": ["go", "rust"],
+    "linux": ["unix", "bash", "shell scripting"],
+    "git": ["github", "gitlab", "bitbucket"],
+    "github": ["git", "gitlab"],
+    "scrum": ["agile", "kanban"],
+    "agile": ["scrum", "kanban"],
+    "kanban": ["agile", "scrum"],
+}
+
+RELATED_CERTIFICATES = {
+    "aws certified": ["aws certified solutions architect", "azure fundamentals", "gcp certification"],
+    "aws certified solutions architect": ["aws certified", "azure solutions architect", "professional cloud architect"],
+    "azure fundamentals": ["aws certified", "gcp certification", "az-900"],
+    "az-900": ["azure fundamentals", "aws certified cloud practitioner"],
+    "azure solutions architect": ["aws certified solutions architect", "professional cloud architect"],
+    "professional cloud architect": ["aws certified solutions architect", "azure solutions architect"],
+    "gcp certification": ["aws certified", "azure fundamentals"],
+    "pmp": ["prince2", "capm", "csm"],
+    "prince2": ["pmp", "capm"],
+    "capm": ["pmp", "prince2"],
+    "csm": ["psm", "pmp", "safe agilist"],
+    "psm": ["csm", "safe agilist"],
+    "cissp": ["cism", "cisa", "security+"],
+    "cism": ["cissp", "cisa"],
+    "cisa": ["cissp", "cism"],
+    "security+": ["network+", "cissp", "cysa+"],
+    "network+": ["security+", "ccna", "a+"],
+    "ccna": ["ccnp", "network+", "jncia"],
+    "ccnp": ["ccna", "ccie"],
+    "cka": ["ckad", "cks", "docker certified associate"],
+    "ckad": ["cka", "cks"],
+    "itil": ["cobit", "togaf"],
+    "togaf": ["itil", "cobit"],
+    "six sigma": ["lean six sigma", "pmp"],
+    "lean six sigma": ["six sigma", "pmp"],
+    "cfa": ["frm", "cma"],
+    "frm": ["cfa"],
+    "cpa": ["acca", "cma"],
+    "acca": ["cpa", "cma"],
+    "rhce": ["rhcsa", "linux+"],
+    "rhcsa": ["rhce", "linux+"],
+}
+
+
+# ---------------------------------------------------------------------------
+# Curated, GUI-friendly lists (short enough to browse in the dropdowns).
+# ---------------------------------------------------------------------------
+POPULAR_SKILLS = [
+    "Python", "Java", "JavaScript", "TypeScript", "C++", "C#", "Go", "SQL",
+    "Machine Learning", "Deep Learning", "NLP", "LLMs", "Generative AI", "Data Science",
+    "Data Analysis", "Computer Vision", "PyTorch", "TensorFlow", "Pandas", "NumPy",
+    "Scikit-learn", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "CI/CD", "MLOps",
+    "React", "Node.js", "FastAPI", "Django", "Linux", "Git", "Kafka", "Spark",
+    "PostgreSQL", "MongoDB", "Snowflake", "Power BI", "Tableau", "Agile", "Scrum",
+    "Communication", "Teamwork", "Leadership", "Problem Solving",
+]
+
+POPULAR_CERTIFICATES = [
+    "AWS Certified", "AWS Certified Solutions Architect", "Azure Fundamentals", "GCP Certification",
+    "PMP", "PRINCE2", "CSM", "PSM", "ITIL", "TOGAF", "CISSP", "CISM", "Security+",
+    "Network+", "CCNA", "CCNP", "CKA", "CKAD", "Docker Certified Associate",
+    "Six Sigma", "Lean Six Sigma", "CFA", "CPA", "RHCE", "RHCSA",
+]
+
+POPULAR_LANGUAGES = [
+    "English", "German", "French", "Spanish", "Italian", "Portuguese", "Dutch",
+    "Turkish", "Arabic", "Chinese", "Japanese", "Korean", "Russian", "Polish", "Hindi",
+]
+
+EDUCATION_LEVELS = ["High School", "Associate", "Bachelor", "Master", "PhD"]
+LANGUAGE_LEVELS = ["Basic", "Conversational", "Fluent", "Native"]
+WORKPLACE_OPTIONS = ["Remote", "Hybrid", "On-site"]
+
+
+# ---------------------------------------------------------------------------
+# Broad expansions so non-technical job searches work too. Display lists are
+# kept sorted alphabetically (see the POPULAR_* reassignments below).
+# ---------------------------------------------------------------------------
+
+SKILLS |= {
+    # Business, finance & administration
+    "business development", "business strategy", "business analysis", "operations management",
+    "office management", "administrative support", "data entry", "bookkeeping", "payroll",
+    "invoicing", "accounts payable", "accounts receivable", "budgeting", "forecasting",
+    "treasury", "financial analysis", "financial planning", "investment banking",
+    "asset management", "wealth management", "insurance underwriting", "claims processing",
+    "actuarial science", "auditing", "internal audit", "taxation", "tax preparation",
+    "quickbooks", "xero", "sap", "oracle", "erp systems", "procurement", "purchasing",
+    "vendor management", "contract management", "tender management", "cost control",
+    # Marketing, sales & customer-facing
+    "marketing strategy", "digital marketing", "content marketing", "email marketing",
+    "social media marketing", "seo", "sem", "ppc", "google ads", "facebook ads", "meta ads",
+    "brand management", "public relations", "copywriting", "editing", "proofreading",
+    "content creation", "community management", "influencer marketing", "affiliate marketing",
+    "market research", "surveys", "focus groups", "customer success", "account management",
+    "sales", "inside sales", "outside sales", "cold calling", "lead generation", "negotiation",
+    "customer service", "customer support", "technical support", "help desk", "complaint handling",
+    "upselling", "cross-selling", "crm", "salesforce", "hubspot", "zendesk", "intercom",
+    # HR, people & training
+    "human resources", "recruiting", "talent acquisition", "sourcing", "onboarding",
+    "employee relations", "performance management", "compensation and benefits",
+    "training and development", "instructional design", "e-learning", "lms administration",
+    "coaching", "mentoring", "facilitation", "workshops", "succession planning",
+    "organizational development", "change management", "diversity and inclusion",
+    # Legal & compliance
+    "legal research", "paralegal", "litigation support", "contract drafting", "contract review",
+    "intellectual property", "patents", "trademarks", "copyright", "immigration law",
+    "corporate law", "compliance", "regulatory affairs", "risk management", "anti-money laundering",
+    "know your customer", "data protection", "gdpr", "privacy law", "due diligence",
+    # Healthcare & life sciences
+    "healthcare", "nursing", "patient care", "clinical research", "clinical trials",
+    "pharmaceuticals", "pharmacovigilance", "medical coding", "medical billing",
+    "electronic health records", "epic", "cerner", "telemedicine", "public health",
+    "epidemiology", "biostatistics", "bioinformatics", "genomics", "laboratory skills",
+    "microscopy", "medical devices", "regulatory submission", "fda", "ema", "gcp",
+    "good clinical practice", "physiotherapy", "occupational therapy", "dental assisting",
+    "pharmacy", "radiology", "sonography", "emergency medicine", "first aid", "cpr",
+    # Education, research & academia
+    "teaching", "curriculum development", "lesson planning", "classroom management",
+    "special education", "early childhood education", "esl", "tefl", "tesol", "tutoring",
+    "academic writing", "academic research", "literature review", "data collection",
+    "statistical analysis", "spss", "stata", "r programming", "qualitative research",
+    "quantitative research", "peer review", "grant writing", "fundraising",
+    "library science", "archival research", "museum curation",
+    # Design, media & creative
+    "graphic design", "illustration", "branding", "typography", "layout design",
+    "ux design", "ui design", "user research", "usability testing", "wireframing",
+    "prototyping", "figma", "sketch", "adobe photoshop", "adobe illustrator",
+    "adobe indesign", "adobe premiere pro", "after effects", "final cut pro",
+    "davinci resolve", "video editing", "video production", "audio engineering",
+    "podcasting", "photography", "photo editing", "lightroom", "videography",
+    "motion graphics", "animation", "3d modeling", "blender", "maya", "unity",
+    "unreal engine", "game design", "game development", "music production",
+    "songwriting", "screenwriting", "journalism", "reporting", "broadcasting",
+    "script writing", "translation", "interpretation", "localization", "subtitling",
+    # Engineering, construction & industry
+    "mechanical engineering", "electrical engineering", "civil engineering",
+    "chemical engineering", "industrial engineering", "structural engineering",
+    "geotechnical engineering", "environmental engineering", "aerospace engineering",
+    "automotive engineering", "manufacturing engineering", "process engineering",
+    "quality assurance", "quality control", "inspection", "metrology", "lean manufacturing",
+    "continuous improvement", "cad", "autocad", "solidworks", "revit", "bim",
+    "plc programming", "scada", "industrial automation", "robotics", "cnc machining",
+    "machining", "welding", "fabrication", "maintenance", "reliability engineering",
+    "predictive maintenance", "safety engineering", "occupational health and safety",
+    "hse", "risk assessment", "project planning", "site management", "surveying",
+    "estimating", "quantity surveying", "construction management", "blueprint reading",
+    # Transport, logistics & supply chain
+    "supply chain management", "logistics", "inventory management", "warehouse management",
+    "fleet management", "dispatch", "route planning", "freight forwarding", "customs clearance",
+    "shipping", "import export", "demand planning", "production planning", "material planning",
+    "distribution", "last mile delivery", "forklift operation", "commercial driving",
+    "truck driving", "driving license", "aviation", "airline operations", "maritime",
+    # Hospitality, food & retail
+    "hospitality", "hotel management", "front office", "housekeeping", "restaurant management",
+    "food service", "waiting", "bartending", "mixology", "barista", "culinary arts",
+    "cooking", "baking", "pastry", "food safety", "servsafe", "haccp", "event planning",
+    "event management", "wedding planning", "catering", "travel planning", "tourism",
+    "tour guiding", "retail management", "visual merchandising", "inventory control",
+    "cash handling", "point of sale", "store operations",
+    # Public sector, security & community
+    "public administration", "policy analysis", "government relations", "urban planning",
+    "community outreach", "program management", "nonprofit management", "volunteer management",
+    "social work", "case management", "counseling", "psychology", "childcare",
+    "elder care", "caregiving", "criminal justice", "law enforcement", "security operations",
+    "surveillance", "emergency management", "firefighting", "military", "intelligence analysis",
+    # Sports, fitness & beauty
+    "personal training", "fitness instruction", "nutrition", "dietetics", "sports coaching",
+    "athletic training", "yoga instruction", "pilates", "physiology", "kinesiology",
+    "cosmetology", "beauty therapy", "barbering", "nail care", "skincare", "makeup artistry",
+    "hair styling", "spa therapy", "massage therapy",
+    # Trades & agriculture
+    "electrical work", "plumbing", "hvac", "carpentry", "masonry", "painting", "roofing",
+    "landscaping", "gardening", "floristry", "pest control", "janitorial", "cleaning",
+    "agriculture", "farming", "animal care", "veterinary assisting", "pet grooming",
+    "zookeeping", "forestry", "fishing", "mining", "oil and gas", "energy management",
+    "renewable energy", "solar installation", "wind energy", "utilities", "water treatment",
+    "waste management", "environmental science", "sustainability", "esg reporting",
+    # Office & general
+    "microsoft office", "microsoft excel", "microsoft word", "microsoft powerpoint",
+    "google workspace", "google sheets", "google docs", "outlook", "gmail", "slack",
+    "microsoft teams", "zoom", "scheduling", "calendar management", "travel booking",
+    "expense reporting", "typing", "shorthand", "dictation", "filing", "record keeping",
+    "time management", "multitasking", "organization", "attention to detail",
+    "problem solving", "critical thinking", "teamwork", "communication", "leadership",
+    "presentation skills", "public speaking", "report writing", "documentation",
+}
+
+CERTIFICATES |= {
+    # Healthcare & life sciences
+    "bls", "acls", "pals", "cpr certification", "first aid certification", "cna",
+    "licensed practical nurse", "registered nurse", "nclex", "ccrn", "cen",
+    "emt", "paramedic", "pharmacy technician", "medical assistant", "phlebotomy",
+    "usmle", "board certified", "rhia", "rhit", "cpc", "ccs", "cdip", "chda",
+    "ich-gcp", "good clinical practice", "rac",
+    # Education & languages
+    "teaching license", "teaching certification", "tefl", "tesol", "celta", "delta",
+    "ielts", "toefl", "toeic", "dele", "delf", "dalf", "goethe-zertifikat", "jlpt", "hsk",
+    "microsoft certified educator", "google certified educator",
+    # Finance, accounting & insurance
+    "cfp", "chfc", "series 7", "series 63", "series 65", "series 66", "finra",
+    "cma", "cfa", "cpa", "acca", "frm", "caia", "cipm", "cfa charter",
+    "cpcu", "ains", "arm", "crcm", "cams",
+    # HR & management
+    "phr", "sphr", "shrm-cp", "shrm-scp", "pmi-acp", "pfmp", "pmi-rmp", "pgmp",
+    "csm", "psm i", "psm ii", "pspo", "safe", "safe agilist", "kanban management professional",
+    "lean six sigma", "six sigma green belt", "six sigma black belt", "six sigma yellow belt",
+    # IT, cloud & security (extra)
+    "comptia a+", "comptia network+", "comptia security+", "comptia cysa+", "comptia pentest+",
+    "comptia casp+", "comptia cloud+", "comptia linux+", "comptia project+", "comptia server+",
+    "cissp", "cissp-issap", "cissp-issep", "cism", "cisa", "crisc", "cgeit", "cdpse",
+    "ccsp", "sscp", "gpen", "gwapt", "gcih", "gsec", "gsna", "ceh", "oscp", "osep",
+    "ccna", "ccnp", "ccie", "devnet", "jncia", "jncis", "jncie",
+    "microsoft az-900", "az-104", "az-204", "az-305", "az-400", "az-500", "ai-102",
+    "dp-100", "dp-203", "dp-300", "dp-900", "pl-300", "sc-900", "sc-200", "ms-900",
+    "mcsa", "mcse", "mcp", "mct", "microsoft certified",
+    "aws certified cloud practitioner", "aws certified solutions architect",
+    "aws certified developer", "aws certified sysops administrator", "aws certified devops engineer",
+    "aws certified security", "aws certified machine learning", "aws certified data analytics",
+    "aws certified advanced networking", "aws certified database",
+    "gcp certification", "associate cloud engineer", "professional cloud architect",
+    "professional data engineer", "professional machine learning engineer",
+    "professional cloud developer", "professional cloud devops engineer",
+    "professional cloud security engineer", "cloud digital leader",
+    "alibaba cloud aca", "alibaba cloud acp", "huawei hcia", "huawei hcip",
+    "cka", "ckad", "cks", "docker certified associate", "terraform associate",
+    "hashicorp vault associate", "lfcs", "lfce", "rhce", "rhcsa", "linux+", "lpic",
+    "itil 4 foundation", "itil", "cobit 2019", "cobit", "togaf",
+    "iso 27001 lead auditor", "iso 27001", "iso 9001", "soc 2",
+    # Data, analytics & quality
+    "databricks certified", "snowflake snowpro", "tableau certified", "tableau desktop specialist",
+    "power bi certification", "power bi data analyst", "cloudera certified", "cdmp",
+    "google data analytics", "google advanced data analytics", "istqb", "csmq",
+    # Design, marketing & other professional
+    "google ads certification", "google analytics certification", "meta blueprint",
+    "hubspot inbound", "hubspot marketing", "adobe certified expert", "adobe ace",
+    "pmp", "prince2", "capm", "cpsm", "apics cpim", "apics cscp", "cltd", "scpro",
+    "servsafe", "haccp certification", "food handler", "nasm",
+    "ace personal trainer", "acsm", "nsca", "rei", "real estate license", "notary public",
+    "cipp", "cipm", "cipt", "bar admission", "diploma in nursing", "diploma in education",
+    "forklift certification", "cdl", "hazmat", "osha 30", "osha 10", "nebosh", "iosh",
+}
+
+# Popular lists are curated, alphabetically ordered subsets used by the GUI
+# dropdowns and the CLI option lists.
+POPULAR_SKILLS = sorted({
+    "Python", "Java", "JavaScript", "TypeScript", "C++", "C#", "Go", "SQL",
+    "Machine Learning", "Deep Learning", "NLP", "LLMs", "Generative AI", "Data Science",
+    "Data Analysis", "Data Entry", "Computer Vision", "PyTorch", "TensorFlow", "Pandas",
+    "NumPy", "Scikit-learn", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "CI/CD",
+    "MLOps", "React", "Node.js", "FastAPI", "Django", "Linux", "Git", "Kafka", "Spark",
+    "PostgreSQL", "MongoDB", "Snowflake", "Power BI", "Tableau", "Agile", "Scrum",
+    "Communication", "Teamwork", "Leadership", "Problem Solving", "Customer Service",
+    "Sales", "Marketing", "Digital Marketing", "SEO", "Accounting", "Bookkeeping",
+    "Financial Analysis", "Human Resources", "Recruiting", "Project Management",
+    "Teaching", "Curriculum Development", "Graphic Design", "UX Design", "UI Design",
+    "Video Editing", "Photography", "Copywriting", "Content Creation", "Public Speaking",
+    "Nursing", "Patient Care", "Clinical Research", "Pharmacy", "Medical Coding",
+    "Legal Research", "Compliance", "Risk Management", "Supply Chain", "Logistics",
+    "Inventory Management", "Hospitality", "Event Planning", "Cooking", "Baking",
+    "Construction", "CAD", "AutoCAD", "SolidWorks", "Welding", "Electrical Work",
+    "Plumbing", "HVAC", "Carpentry", "Driving", "Warehouse Management", "Forklift Operation",
+    "Personal Training", "Nutrition", "Cosmetology", "Massage Therapy", "Childcare",
+    "Social Work", "Counseling", "Teaching English", "Translation", "Journalism",
+})
+
+POPULAR_CERTIFICATES = sorted({
+    "AWS Certified", "AWS Certified Solutions Architect", "AWS Certified Cloud Practitioner",
+    "Azure Fundamentals", "AZ-900", "AZ-104", "GCP Certification", "Associate Cloud Engineer",
+    "PMP", "PRINCE2", "CAPM", "CSM", "PSM I", "PSM II", "ITIL", "ITIL 4 Foundation",
+    "TOGAF", "CISSP", "CISM", "CISA", "Security+", "CompTIA Security+", "CompTIA A+",
+    "CompTIA Network+", "CCNA", "CCNP", "CKA", "CKAD", "CKS", "Docker Certified Associate",
+    "Terraform Associate", "RHCE", "RHCSA", "Six Sigma", "Lean Six Sigma",
+    "Six Sigma Green Belt", "Six Sigma Black Belt", "CFA", "CPA", "ACCA", "CMA", "FRM",
+    "CFP", "Series 7", "PHR", "SPHR", "SHRM-CP", "SHRM-SCP", "Google Ads Certification",
+    "Google Analytics Certification", "Meta Blueprint", "HubSpot Inbound", "Tableau Certified",
+    "Power BI Certification", "Databricks Certified", "Snowflake SnowPro", "ISTQB",
+    "NCLEX", "BLS", "ACLS", "CPR Certification", "First Aid Certification", "CNA",
+    "EMT", "Pharmacy Technician", "Medical Assistant", "RHIA", "RHIT", "CPC",
+    "Teaching License", "TEFL", "TESOL", "CELTA", "IELTS", "TOEFL",
+    "Real Estate License", "Notary Public", "CIPP", "CIPM", "CIPT", "Bar Admission",
+    "ServSafe", "HACCP Certification", "Forklift Certification", "CDL", "OSHA 10",
+    "OSHA 30", "NEBOSH", "ACE Personal Trainer", "NASM", "ACSM", "NSCA",
+    "CPSM", "APICS CPIM", "APICS CSCP", "Google Data Analytics", "ISO 27001",
+})
+
+
+# ---------------------------------------------------------------------------
+# Display formatting for option lists.
+# ---------------------------------------------------------------------------
+
+# Words rendered in uppercase inside display names ("aws certified" -> "AWS Certified").
+WORD_ACRONYMS = {"aws", "gcp", "itil", "pmp", "csm", "psm", "sql", "llm", "llms", "nlp", "ml",
+                 "ai", "ui", "ux", "api", "hr", "iso", "cpr", "emt", "cna", "cdl", "osha",
+                 "hvac", "cad", "bim", "seo", "sem", "ppc", "esg", "hse", "crm", "erp", "kpi"}
+
+
+def display_name(entry):
+    """User-facing name for an option: 'machine learning' -> 'Machine Learning',
+    'c++' and 'node.js' stay untouched, known acronyms become uppercase."""
+    if " " in entry and all(ch.isalpha() or ch.isspace() for ch in entry):
+        words = [word.upper() if word in WORD_ACRONYMS else word.capitalize()
+                 for word in entry.split()]
+        return " ".join(words)
+    return entry

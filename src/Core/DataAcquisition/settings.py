@@ -1,12 +1,28 @@
-"""Runtime tunables for the job scraping pipeline.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's Settings module with standard Python naming. Since
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Runtime tunables for the job scraping pipeline.
+
+Since
 JobScout currently has no CLI/GUI driving these values, they are plain module
 constants - the GUI can import and tweak them later.
+
 """
 
 # ================================================================ SETTINGS
-MAX_JOBS = 25           # job pages processed per search (None = every job found)
+# There is deliberately no job limit - every job found is processed.
 HTTP_PER_SITE = 6       # downloads at the same time on one site (6 = what Chrome does)
 BROWSER_TABS = 4        # browser tabs running at the same time
 REQUEST_TIMEOUT = 20    # seconds per download

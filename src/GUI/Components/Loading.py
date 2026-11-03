@@ -1,16 +1,19 @@
 """
-This file is part of ShopWise, an open-source multi-region, multi-store
-price-comparison and product-search engine.
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Copyright (c) 2026 Muhammed Bekiroğlu and the ShopWise contributors.
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
 
-Original ShopWise repository: https://github.com/Mohamad1234567891/ShopWise
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
 
-Muhammed Bekiroğlu (ShopWise team leader and top contributor) YouTube channel:
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
     https://www.youtube.com/@ALShajaraComputerScienceInstit
 
 Licensed under the Mozilla Public License 2.0 with Additional Attribution
 Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Small spinning loader shown while a search runs.
 """
 
 from PySide6.QtWidgets import QWidget
@@ -19,8 +22,9 @@ from PySide6.QtGui import QPainter, QColor, QPen
 
 
 class SmallLoader(QWidget):
-    """Small spinning loader shown while a search runs; starts hidden and rotates at roughly 60 FPS while visible."""
-    def __init__(self, size: int = 28, parent=None):
+    """Spinning arc that rotates at roughly 60 FPS while visible."""
+
+    def __init__(self, size=28, parent=None):
         super().__init__(parent)
         self.size_val = size
         self.setFixedSize(size, size)
@@ -29,8 +33,7 @@ class SmallLoader(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._rotate)
 
-        # Starts hidden by default
-        self.hide()
+        self.hide()  # starts hidden by default
 
     def start(self):
         self.angle = 0
@@ -52,11 +55,11 @@ class SmallLoader(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         pen = QPen()
         pen.setWidth(3)
-        pen.setCapStyle(Qt.RoundCap)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
 
         # Subtle background track
         pen.setColor(QColor(255, 255, 255, 40))
@@ -65,7 +68,7 @@ class SmallLoader(QWidget):
         draw_size = self.size_val - (margin * 2)
         painter.drawEllipse(margin, margin, draw_size, draw_size)
 
-        # Animated spinning arc (Light blue / Accent)
+        # Animated spinning arc (light blue / accent)
         pen.setColor(QColor("#38bdf8"))
         painter.setPen(pen)
         painter.drawArc(margin, margin, draw_size, draw_size, -self.angle * 16, 90 * 16)

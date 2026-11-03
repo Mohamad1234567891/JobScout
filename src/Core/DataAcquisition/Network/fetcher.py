@@ -1,10 +1,26 @@
-"""The fetching engine.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's Fetcher with standard Python naming. Downloads pages
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+The fetching engine.
+
+Downloads pages
 with impersonated HTTP requests first and falls back to a headless Playwright
 browser when a site blocks plain HTTP; per-site and per-browser-tab
 concurrency is limited by slot managers, and safe_call bounds every
 Playwright operation so a hung browser can never stall the run.
+
 """
 
 import asyncio

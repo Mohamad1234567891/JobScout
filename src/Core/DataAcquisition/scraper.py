@@ -1,13 +1,31 @@
-"""The job scraping pipeline.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Adapted from ShopWise's Scraper module. Searches LinkedIn for a job title,
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+The job scraping pipeline.
+
+Searches LinkedIn for a job title,
 extracts the job links from the listing page (HTTP first, browser fallback),
 then fetches and extracts every job page concurrently. Returns the extracted
 job list and the session statistics.
+
 """
 
 import asyncio
+import inspect
 import json
+import time
 
 from urllib.parse import quote
 
@@ -17,22 +35,23 @@ from src.Core.DataAcquisition.Extraction import job_listing
 from src.Core.DataAcquisition.Extraction import job_page
 from src.Core.DataAcquisition.Network.fetcher import Fetcher
 
-# The LinkedIn job search URL template. location=Worldwide keeps the search
-# global and sortBy=DD puts the most recently posted jobs first (the GUI can
-# pass a real location later).
+# The LinkedIn job search URL template. sortBy=DD puts the most recently
+# posted jobs first; the location defaults to Worldwide and can be overridden
+# per search (the GUI passes the user's location when given).
 SEARCH_URL_TEMPLATE = ("https://www.linkedin.com/jobs/search?keywords={query}"
-                       "&location=Worldwide&sortBy=DD")
+                       "&location={location}&sortBy=DD")
 
 
-def build_search_url(query):
-    """Builds the LinkedIn search URL for a job title query."""
-    return SEARCH_URL_TEMPLATE.format(query=quote(query.strip()))
+def build_search_url(query, location="Worldwide"):
+    """Builds the LinkedIn search URL for a job title query and location."""
+    return SEARCH_URL_TEMPLATE.format(query=quote(query.strip()),
+                                      location=quote((location or "Worldwide").strip()))
 
 
-async def process_job(fetcher, listing_url, index, entry, results, progress):
+async def process_job(fetcher, listing_url, index, entry, results, progress, on_job=None, stop_check=None):
     """Fetches one job page, extracts its data and appends it to results.
 
-    Mirrors ShopWise's process-a-single-product step: fetch via HTTP with the
+    Mirrors the per-product processing step: fetch via HTTP with the
     listing page as referer, escalate to the browser when HTTP missed key
     fields, and merge what the browser found.
 
@@ -43,7 +62,13 @@ async def process_job(fetcher, listing_url, index, entry, results, progress):
         entry: Listing dict (job_url, job_id, title, company, location, posted_date).
         results: Shared list where extracted jobs are appended as (index, dict).
         progress: Shared dict tracking done/total.
+        on_job: Optional callback invoked with each extracted job the moment
+            it is ready (streaming results to the GUI/CLI).
+        stop_check: Optional callable returning True when the search should
+            stop (the app is closing - the daemon takes over the rest).
     """
+    if stop_check and stop_check():
+        return
     try:
         url = entry["job_url"]
         page = await fetcher.get(url, referer=listing_url, render_options={"scroll": True},
@@ -85,6 +110,11 @@ async def process_job(fetcher, listing_url, index, entry, results, progress):
         results.append((index, data))
         progress["done"] += 1
 
+        if on_job is not None:
+            result = on_job(data)
+            if inspect.isawaitable(result):
+                await result
+
         if settings.VERBOSE:
             print(f"=== Processed Job {progress['done']}/{progress['total']} ===")
             print(json.dumps(data, indent=4, ensure_ascii=False, default=str))
@@ -95,11 +125,21 @@ async def process_job(fetcher, listing_url, index, entry, results, progress):
             print(f"  -> Error processing job page {entry.get('job_url')}: {type(e).__name__}: {e}")
 
 
-async def scrape_search_space(job_title):
+async def scrape_search_space(job_title, location=None, on_job=None, stop_check=None):
     """Searches LinkedIn for a job title and returns (jobs, stats).
+
+    Every job found is processed - there is no job limit. Each extracted job
+    is passed to the optional on_job callback the moment it is ready, so the
+    GUI and the CLI can show results while the search is still running.
 
     Args:
         job_title (str): The job the user is searching for.
+        location (str | None): Search location (defaults to Worldwide).
+        on_job: Optional callback invoked with each job as it is extracted
+            (may be async).
+        stop_check: Optional callable returning True when the search should
+            stop early (the app is closing; the daemon completes the rest).
+            Already-collected jobs are still returned.
 
     Returns:
         tuple[list[dict], dict]: The extracted job list (listing order) and
@@ -109,7 +149,7 @@ async def scrape_search_space(job_title):
         print("[-] Please enter the job you are searching for")
         return [], {}
 
-    url = build_search_url(job_title)
+    url = build_search_url(job_title, location)
     progress = {"done": 0, "total": 0}
     results = []
 
@@ -142,9 +182,6 @@ async def scrape_search_space(job_title):
                     listing = rendered
                     entries = job_listing.extract_listing_links(listing["html"], listing["url"], listing["json"])
 
-            if settings.MAX_JOBS:
-                entries = entries[:settings.MAX_JOBS]
-
             print(f"[+] Found {len(entries)} jobs. Scraping each job page...")
 
             if not entries:
@@ -153,16 +190,29 @@ async def scrape_search_space(job_title):
 
             progress["total"] = len(entries)
 
-            # Phase 2 - a watchdog around the whole scraping session, exactly
-            # like ShopWise: if anything gets stuck, show what was collected.
+            # Phase 2 - a watchdog around the whole scraping session.
+            # If anything gets stuck (or the app is closing), show what was
+            # collected so far.
             gather_task = asyncio.ensure_future(asyncio.gather(*(
-                process_job(fetcher, listing["url"], index, entry, results, progress)
+                process_job(fetcher, listing["url"], index, entry, results, progress, on_job, stop_check)
                 for index, entry in enumerate(entries, start=1))))
-            done_tasks, pending_tasks = await asyncio.wait({gather_task}, timeout=settings.SCRAPE_TIME_LIMIT)
-
-            if pending_tasks:
-                gather_task.cancel()
-                print(f"[!] Scraping exceeded {settings.SCRAPE_TIME_LIMIT}s - showing the jobs collected so far.")
+            deadline = time.monotonic() + settings.SCRAPE_TIME_LIMIT
+            while True:
+                done_tasks, pending_tasks = await asyncio.wait({gather_task}, timeout=0.5)
+                if not pending_tasks:
+                    break
+                if (stop_check and stop_check()) or time.monotonic() > deadline:
+                    gather_task.cancel()
+                    try:
+                        await gather_task
+                    except (asyncio.CancelledError, Exception):
+                        pass
+                    if stop_check and stop_check():
+                        print("[*] Stopping early - the background monitor will finish the rest.")
+                    else:
+                        print(f"[!] Scraping exceeded {settings.SCRAPE_TIME_LIMIT}s - "
+                              f"showing the jobs collected so far.")
+                    break
 
         except (asyncio.CancelledError, KeyboardInterrupt):
             print("[!] Stopped by user (jobs collected so far are shown).")

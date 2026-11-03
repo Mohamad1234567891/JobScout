@@ -1,16 +1,22 @@
 """
-This file is part of ShopWise, an open-source multi-region, multi-store
-price-comparison and product-search engine.
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
 
-Copyright (c) 2026 Muhammed Bekiroğlu and the ShopWise contributors.
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
 
-Original ShopWise repository: https://github.com/Mohamad1234567891/ShopWise
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
 
-Muhammed Bekiroğlu (ShopWise team leader and top contributor) YouTube channel:
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
     https://www.youtube.com/@ALShajaraComputerScienceInstit
 
-Licensed under the Mozilla Public License 2A.0 with Additional Attribution
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
 Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Search input with an autocomplete completer and a search button.
+
+Emits text_changed while typing and search_submitted on Enter or click.
+
 """
 
 from PySide6.QtWidgets import (
@@ -21,7 +27,6 @@ from PySide6.QtGui import QCursor
 
 
 class SearchBar(QWidget):
-    """Search input with an autocomplete completer and a search button; emits text_changed while typing and search_submitted on Enter or click."""
     text_changed = Signal(str)
     search_submitted = Signal(str)
 
@@ -29,11 +34,11 @@ class SearchBar(QWidget):
         super().__init__(parent)
 
         self.setFixedHeight(50)
-        self.setMinimumWidth(240)    # Shrinks smoothly on small screens
-        self.setMaximumWidth(1100) # Removes the upper limit completely
+        self.setMinimumWidth(240)
+        self.setMaximumWidth(1100)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         self.setStyleSheet("""
             SearchBar {
@@ -55,8 +60,8 @@ class SearchBar(QWidget):
         # Text input
         self.input_field = QLineEdit()
         self.input_field.setMinimumWidth(80)
-        self.input_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.input_field.setPlaceholderText("Search for a product (e.g. Samsung Galaxy S25)...")
+        self.input_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.input_field.setPlaceholderText("Search for a job (e.g. AI Engineer)...")
         self.input_field.setStyleSheet("""
             QLineEdit {
                 background: transparent;
@@ -73,7 +78,7 @@ class SearchBar(QWidget):
         # Search button
         self.search_btn = QPushButton("Search")
         self.search_btn.setFixedSize(90, 38)
-        self.search_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.search_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.search_btn.setStyleSheet("""
             QPushButton {
                 background-color: #1e3a5f;
@@ -96,10 +101,10 @@ class SearchBar(QWidget):
         self.input_field.returnPressed.connect(self._on_submit)
         self.search_btn.clicked.connect(self._on_submit)
 
-    def set_suggestions(self, words: list):
+    def set_suggestions(self, words):
         completer = QCompleter(words, self)
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         self.input_field.setCompleter(completer)
 
     def _on_text_changed(self, text):

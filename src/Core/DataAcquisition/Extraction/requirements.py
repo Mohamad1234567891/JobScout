@@ -1,13 +1,30 @@
-"""Parses job description text into structured requirement fields.
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
+
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+
+Parses job description text into structured requirement fields.
 
 Extracts what the employer asks for: years of experience, education degrees,
 certificates, and (as a bonus for later scoring) mentioned skills. Each
 extractor returns lists of human-readable strings found in the text.
+
 """
 
 import re
 
 from src.Constants import constants
+from src.Constants import job_vocabulary
 from src.Constants import regex_constants as re_c
 from src.Operations import string_operations as so
 
@@ -179,3 +196,77 @@ def extract_requirement_sections(description):
             requirement_lines.append(line)
 
     return requirement_lines or lines  # fall back to the whole description when no sections are found
+
+
+# ---------------------------------------------------------------------------
+# Language requirements
+# ---------------------------------------------------------------------------
+
+_LANG_PATTERN = re.compile(
+    r"\b(?P<level>fluent(?:ly)?|fluency|proficient|proficiency|native|bilingual|"
+    r"business[- ]level|conversational|basic|intermediate|advanced|working\s+proficiency)\s+"
+    r"(?:in|with|speaker\s+of|level\s+of|of)?\s*(?P<lang>" +
+    "|".join(sorted(job_vocabulary.LANGUAGES, key=len, reverse=True)) +
+    r")\b", re.I)
+
+_LANG_TAIL_PATTERN = re.compile(
+    r"\b(?P<lang>" + "|".join(sorted(job_vocabulary.LANGUAGES, key=len, reverse=True)) +
+    r")\s+(?:proficiency|fluency|language\s+skills|speaking\s+skills|speaker|native|skills)\b",
+    re.I)
+
+_LEVEL_NORMALIZATION = {
+    "fluent": "fluent", "fluently": "fluent", "fluency": "fluent", "proficient": "fluent",
+    "proficiency": "fluent", "business level": "fluent", "business-level": "fluent",
+    "intermediate": "fluent", "advanced": "fluent", "working proficiency": "conversational",
+    "conversational": "conversational", "basic": "basic", "native": "native",
+    "bilingual": "native",
+}
+
+
+def extract_languages(text):
+    """Finds language requirements in the description text.
+
+    Detects phrasings like "fluent in English", "English proficiency",
+    "native German speaker" and "business level French".
+
+    Args:
+        text (str): The job description text.
+
+    Returns:
+        list[dict]: One entry per language with keys language, level and
+        is_preferred (always False here; preference tagging happens upstream).
+    """
+    if not text:
+        return []
+
+    found, seen = [], set()
+
+    for match in _LANG_PATTERN.finditer(text):
+        language = match.group("lang").lower()
+        level = _LEVEL_NORMALIZATION.get(match.group("level").lower(), None)
+        if language not in seen:
+            seen.add(language)
+            found.append({"language": language, "level": level})
+
+    for match in _LANG_TAIL_PATTERN.finditer(text):
+        language = match.group("lang").lower()
+        if language not in seen:
+            seen.add(language)
+            found.append({"language": language, "level": None})
+
+    # Lines that clearly talk about languages usually list several of them
+    # ("Fluency in English and German"): sweep such lines for every language
+    # name so none is missed.
+    if found:
+        for line in _clean_lines(text):
+            if not re.search(r"\b(fluent|fluency|proficient|proficiency|speak|spoken|"
+                             r"native|language|bilingual)\b", line, re.I):
+                continue
+            for language in job_vocabulary.LANGUAGES:
+                if language in seen:
+                    continue
+                if re.search(r"(?<![a-z])" + re.escape(language) + r"(?![a-z])", line.lower()):
+                    seen.add(language)
+                    found.append({"language": language, "level": None})
+
+    return found

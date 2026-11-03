@@ -1,10 +1,26 @@
+"""
+This file is part of JobScout, an open-source job-search and job-match
+engine that scrapes LinkedIn and scores every posting against your profile.
+
+Copyright (c) 2026 Muhammed Bekiroğlu and the JobScout contributors.
+
+Original JobScout repository: https://github.com/Mohamad1234567891/JobScout
+
+Muhammed Bekiroğlu (JobScout team leader and top contributor) YouTube channel:
+    https://www.youtube.com/@ALShajaraComputerScienceInstit
+
+Licensed under the Mozilla Public License 2.0 with Additional Attribution
+Terms — see the LICENSE file.
+-------------------------------------------------------------------------------------------------------------------------------
+"""
+
 import time
 
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QWidget, QHBoxLayout, QVBoxLayout, QLabel,
+    QComboBox, QFrame, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, QPoint, QSize, QEvent
+from PySide6.QtCore import Qt, Signal, QPoint, QSize, QEvent, QTimer
 from PySide6.QtGui import QColor, QFont, QFontMetrics
 
 
@@ -69,6 +85,16 @@ class CustomDropdown(QComboBox):
     def add_option(self, option_text: str):
         """Adds a new option item to the dropdown list."""
         self.addItem(option_text)
+
+    def current_value(self):
+        """Returns the selected text, or None when nothing is selected."""
+        return self.currentText() if self.currentIndex() >= 0 else None
+
+    def set_value(self, text):
+        """Selects the given option when it exists (no-op otherwise)."""
+        index = self.findText(text)
+        if index >= 0:
+            self.setCurrentIndex(index)
 
 
 class SelectionDropdown(QFrame):
@@ -152,6 +178,26 @@ class SelectionDropdown(QFrame):
         box_layout = QVBoxLayout(box)
         box_layout.setContentsMargins(6, 6, 6, 6)
         box_layout.setSpacing(4)
+
+        # Search box: typing filters the options (useful for long lists).
+        self._search_input = QLineEdit()
+        self._search_input.setPlaceholderText("Search options...")
+        self._search_input.setClearButtonEnabled(True)
+        self._search_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #2a2a2a;
+                border: 1px solid #3f3f46;
+                border-radius: 6px;
+                padding: 6px 8px;
+                color: #f4f4f5;
+                font-size: 13px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #3b82f6;
+            }
+        """)
+        self._search_input.textChanged.connect(self._filter_items)
+        box_layout.addWidget(self._search_input)
 
         self._list = QListWidget()
         self._list.setFrameShape(QFrame.Shape.NoFrame)
@@ -268,7 +314,15 @@ class SelectionDropdown(QFrame):
             item.setSizeHint(QSize(0, self.ROW_HEIGHT))
             self._list.addItem(item)
         self._updating = False
+        self._filter_items(self._search_input.text())
         self._sync_from_list()
+
+    def _filter_items(self, text):
+        """Shows only the options that contain the search text."""
+        query = (text or "").strip().casefold()
+        for index in range(self._list.count()):
+            item = self._list.item(index)
+            item.setHidden(bool(query) and query not in item.text().casefold())
 
     def selected_items(self):
         return list(self._selected)
@@ -379,6 +433,10 @@ class SelectionDropdown(QFrame):
         self._popup.move(pos)
         self._popup.show()
         self._set_open(True)
+
+        # Fresh search each time the dropdown opens, ready for typing.
+        self._search_input.clear()
+        QTimer.singleShot(0, self._search_input.setFocus)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
